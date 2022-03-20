@@ -1,47 +1,39 @@
 const Database = require("fast-json-collection");
-const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
-const loadGTFS = require('./loadGTFS');
+const load = require("./util/load");
+const cron = require("node-cron");
+const app = require('fastify')();
 
 global.db = {
-    routes: new Database({
-        path: "./db/routes.json",
-        sync: false
-    }),
-    trips: new Database({
-        path: "./db/trips.json",
-        sync: false
-    }),
-    stops: new Database({
-        path: "./db/stops.json",
-        sync: false
-    }),
-    shapes: new Database({
-        path: "./db/shapes.json",
-        sync: true
-    })
+    routes: new Database({ path: "./db/routes.json", sync: false }),
+    trips: new Database({ path: "./db/trips.json", sync: false }),
+    stops: new Database({ path: "./db/stops.json", sync: false }),
+    shapes: new Database({ path: "./db/shapes.json", sync: true })
 };
 
-db.routes.clear();
-db.trips.clear();
-db.stops.clear();
-db.shapes.clear();
+cron.schedule('0 3 * * *', load);
 
-fetch("https://mkuran.pl/gtfs/warsaw/feeds/modtimes.json").then(res => res.json()).then(data => {
-    Promise.all([
-        loadGTFS("https://mkuran.pl/gtfs/kolejemazowieckie.zip", {
-            shapes: [0, 2, 3],
-            stopTimes: [0, 1, 2, 3, -1, -1],
-            trips: [0, 2, 4, 5]
-        }),
-        loadGTFS(`https://mkuran.pl/gtfs/warsaw/feeds/${Object.keys(data)[0]}.zip`, {
-            shapes: [0, 3, 4],
-            stopTimes: [0, 1, 2, 3, 5, -1],
-            trips: [0, 2, 3, 5]
+app.get("/trip",  async(req, res) => {
+    let trip = db.trips.get(req.query.trip);
+    if (!trip) return res.code(404).send("Trip not found");
+    let shape = db.shapes.get(trip.shape);
+    res.send({
+        line: trip.line,
+        headsign: trip.headsign,
+        shapes: shape,
+        stops: trip.stops.map(stop => {
+            let stopData = db.stops.get(stop.id);
+            return {
+                name: stopData.name,
+                id: stop.id,
+                on_request: stop.on_request,
+                location: stopData.location,
+                time: stop.departure
+            }
         })
-        /*loadGTFS("https://mkuran.pl/gtfs/tristar.zip", {
-            shapes: [0, 2, 3],
-            stopTimes: [0, 1, 2, 3, 5, -1],
-            trips: [0, 2, 3, 5]
-        })*/
-    ]);
+    });
+});
+
+app.listen(3000, (err, address) => {
+    if (err) throw err;
+    console.log(`server listening on ${address}`);
 });
