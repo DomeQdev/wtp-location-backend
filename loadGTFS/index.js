@@ -7,6 +7,9 @@ module.exports = async (link, options) => {
     convertShapes(data["shapes.txt"].split("\r\n"), options.shapes);
     convertRoutes(data["routes.txt"].split("\r\n"));
     convertStops(data["stops.txt"].split("\r\n"));
+
+    db.trips.clear();
+
     let stopTimes = convertStopTimes(data["stop_times.txt"].split("\r\n"), options.stopTimes);
     let trips = convertTrips(data["trips.txt"].split("\r\n"), options.trips);
 
@@ -33,10 +36,12 @@ function convertShapes(data, [shape_id, shape_pt_lat, shape_pt_lon]) {
         shapes[shape[shape_id]].push([lat, lng]);
     });
 
-    return db.shapes.setMany(shapes);
+    return db.shapes.setMany(shapes, true);
 };
 
 function convertRoutes(data) {
+    db.routes.clear();
+
     data.filter((x, i) => i !== 0 && i !== data.length - 1).map(line => {
         let route = line.split(',');
         db.routes.set(route[1], {
@@ -51,6 +56,8 @@ function convertRoutes(data) {
 }
 
 function convertStops(data) {
+    db.stops.clear();
+
     data.filter((x, i) => i !== 0 && i !== data.length - 1).map(line => {
         let stop = line.split(',');
         db.stops.set(stop[0], {
