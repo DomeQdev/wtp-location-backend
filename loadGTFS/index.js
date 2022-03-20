@@ -40,8 +40,8 @@ function convertShapes(data, [shape_id, shape_pt_lat, shape_pt_lon]) {
 function convertRoutes(data) {
     data.filter((x, i) => i !== 0 && i !== data.length - 1).map(line => {
         let route = line.split(',');
-        db.routes.set(route[1], {
-            line: route[1],
+        db.routes.set(route[2], {
+            line: route[2],
             name: route[3],
             type: route[4] === "0" ? "tram" : (route[4] === "1" ? "metro" : (route[4] === "2" ? "rail" : (route[4] === "3" ? "bus" : "unknown"))),
             color: `#${route[5]}`
@@ -90,7 +90,7 @@ function convertStopTimes(data, [trip_id, arrival_time, departure_time, stop_id,
 // km: 0, 2, 4, 5
 // pkp: 0, 2, 3, 5
 function convertTrips(data, [route_id, trip_id, trip_headsign, shape_id]) {
-    return data.filter((x, i) => i !== 0 && i !== data.length - 1).filter(line => line.split(",")[shape_id]).map(line => {
+    return data.filter((x, i) => i !== 0 && i !== data.length - 1).filter(line => line.split(',')[shape_id]).map(line => {
         let trip = line.split(',');
         return {
             line: trip[route_id],

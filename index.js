@@ -5,23 +5,19 @@ const loadGTFS = require('./loadGTFS');
 global.db = {
     routes: new Database({
         path: "./db/routes.json",
-        sync: false,
-        space: 4
+        sync: false
     }),
     trips: new Database({
         path: "./db/trips.json",
-        sync: false,
-        space: 4
+        sync: false
     }),
     stops: new Database({
         path: "./db/stops.json",
-        sync: false,
-        space: 4
+        sync: false
     }),
     shapes: new Database({
         path: "./db/shapes.json",
-        sync: true,
-        space: 4
+        sync: true
     })
 };
 
@@ -42,5 +38,10 @@ fetch("https://mkuran.pl/gtfs/warsaw/feeds/modtimes.json").then(res => res.json(
             stopTimes: [0, 1, 2, 3, 5, -1],
             trips: [0, 2, 3, 5]
         })
+        /*loadGTFS("https://mkuran.pl/gtfs/tristar.zip", {
+            shapes: [0, 2, 3],
+            stopTimes: [0, 1, 2, 3, 5, -1],
+            trips: [0, 2, 3, 5]
+        })*/
     ]);
 });
