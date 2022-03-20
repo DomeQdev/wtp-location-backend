@@ -1,6 +1,6 @@
 const Database = require("fast-json-collection");
 const load = require("./util/load");
-const loadVehicles = require("./util/loadVehicles");
+const loadVehicles = require("./util/vehicles");
 const cron = require("node-cron");
 const app = require('fastify')();
 
