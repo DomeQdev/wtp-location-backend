@@ -1,7 +1,8 @@
 const nodefetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 const { JSDOM } = require('jsdom');
 
-module.exports = async() => {
+module.exports = async () => {
+    db.vehicles.clear();
     let filter = {
         model: {},
         carrier: {},
@@ -11,14 +12,14 @@ module.exports = async() => {
     let ile = await fetch("https://www.ztm.waw.pl/baza-danych-pojazdow/").then(document => Number(document.querySelectorAll("li.page-numbers")[3].textContent.split(" ")[0]));
 
     for (let i = 1; i <= ile; i++) {
-        let page = await fetch(`https://www.ztm.waw.pl/baza-danych-pojazdow/${i === 1 ? "" : `page/${i}`}`).then(document => Object.values(document.querySelectorAll("a.grid-row-active")).map(a => a.href));
-        page.map(async(url) => {
+        let page = await fetch(`https://www.ztm.waw.pl/baza-danych-pojazdow/${i + 1 === 1 ? "" : `page/${i + 1}`}`).then(document => Object.values(document.querySelectorAll("a.grid-row-active")).map(a => a.href));
+        await Promise.all(page.map(async (url) => {
             let vehicle = await fetch(url).then(document => Object.values(document.querySelectorAll("div.vehicle-details-entry")).map(x => x.children[1].textContent));
-            
-            if(vehicle[3] !== "Autobus" && vehicle[3] !== "Tramwaj") return;
-            
+
+            if (vehicle[3] !== "Autobus" && vehicle[3] !== "Tramwaj") return;
+
             let realbus = await fetch(`https://realbus.pl/mapa/vehicle_info.php?tab=${vehicle[5]}&type=${vehicle[3] === "Autobus" ? "bus" : "tram"}&info_type=json`);
-            
+
             let features = vehicle[9] ? vehicle[9].split(", ") : [];
             vehicle[8] !== "brak" ? features.push("automat biletowy") : null;
 
@@ -33,15 +34,18 @@ module.exports = async() => {
                 features: features,
                 description: realbus.description
             });
-        });
-
-        db.vehicles.sync()
+            return true;
+        }));
     }
+
+    console.log(`Vehicles: ${db.vehicles.size} | Bus: ${db.vehicles.filter(x => x.type === "bus").length} | Tram: ${db.vehicles.filter(x => x.type === "tram").length}`);
+    db.vehicles.sync();
 }
 
 async function fetch(url, limit = 10) {
     let res = await nodefetch(url).catch(() => null);
     if (res) return (new JSDOM(await res.text())).window.document;
     if (limit === 0) return null;
-    return fetchRetry(url, limit - 1);
+    console.log(`Retry: ${url} | Left: ${limit}`)
+    return fetch(url, limit - 1);
 }

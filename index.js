@@ -9,7 +9,7 @@ global.db = {
     trips: new Database({ path: "./db/trips.json", sync: false }),
     stops: new Database({ path: "./db/stops.json", sync: false }),
     shapes: new Database({ path: "./db/shapes.json", sync: true }),
-    vehicles: new Database({ path: "./db/vehicles.json", sync: false }),
+    vehicles: new Database({ path: "./db/vehicles.json", sync: false, space: 4 }),
     filter: new Database({ path: "./db/filter.json", sync: false, space: 4 })
 };
 
