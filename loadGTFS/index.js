@@ -8,7 +8,7 @@ module.exports = async (link, options) => {
     convertRoutes(data["routes.txt"].split("\r\n"));
     convertStops(data["stops.txt"].split("\r\n"));
 
-    let stopTimes = convertStopTimes(data["stop_times.txt"].split("\r\n"), options.stopTimes);
+    let stopTimes = convertStopTimes(data["stop_times.txt"].split("\r\n"), options.stopTimes, options.split, options.slice);
     let trips = convertTrips(data["trips.txt"].split("\r\n"), options.trips);
 
     trips.map(trip => {
@@ -68,20 +68,36 @@ function convertStops(data) {
 // ztm: 0, 1, 2, 3, 5, -1
 // km: 0, 1, 2, 3, -1, -1
 // pkp: 0, 3, 4, 2, -1, 5
-function convertStopTimes(data, [trip_id, arrival_time, departure_time, stop_id, pickup_type, platform]) {
+function convertStopTimes(data, [trip_id, arrival_time, departure_time, stop_id, pickup_type, platform], split = "/", slice = 2) {
     let stopTimes = {};
+    let tempStopTimes = {};
+    let starts = {};
 
     data.filter((x, i) => i !== 0 && i !== data.length - 1).map(line => {
         let stopTime = line.split(',');
+
         if (!stopTimes[stopTime[trip_id]]) stopTimes[stopTime[trip_id]] = [];
         stopTimes[stopTime[trip_id]].push({
-            id: stopTime[stop_id],
             arrival: czas(stopTime[arrival_time]),
-            departure: czas(stopTime[departure_time]),
+            departure: czas(stopTime[departure_time])
+        });
+
+        let id = stopTime[trip_id].split(split).slice(0, slice).join(split);
+        if (!tempStopTimes[id]) tempStopTimes[id] = [];
+
+        let tripStart = starts[id] ? starts[id] : starts[id] = czas(stopTime[arrival_time]);
+
+        tempStopTimes[id].push({
+            id: stopTime[stop_id],
+            arrival: czas(stopTime[arrival_time]) - tripStart,
+            departure: czas(stopTime[departure_time]) - tripStart,
             on_request: stopTime[pickup_type] === "3" ? true : false,
             platform: stopTime[platform]
         });
     });
+
+    db.stopTimes.setMany(tempStopTimes, true);
+    console.log(db.stopTimes.size)
 
     return stopTimes;
 }
@@ -96,8 +112,7 @@ function convertTrips(data, [route_id, trip_id, trip_headsign, shape_id]) {
             line: trip[route_id],
             trip: trip[trip_id],
             headsign: trip[trip_headsign],
-            shape: trip[shape_id],
-            stops: []
+            shape: trip[shape_id]
         };
     });
 }

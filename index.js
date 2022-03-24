@@ -7,16 +7,18 @@ const app = require('fastify')();
 global.db = {
     routes: new Database({ path: "./db/routes.json", sync: false }),
     trips: new Database({ path: "./db/trips.json", sync: false }),
+    stopTimes: new Database({ path: "./db/stopTimes.json", sync: true, space: 4 }),
     stops: new Database({ path: "./db/stops.json", sync: false }),
     shapes: new Database({ path: "./db/shapes.json", sync: true }),
     vehicles: new Database({ path: "./db/vehicles.json", sync: false, space: 4 }),
     filter: new Database({ path: "./db/filter.json", sync: false, space: 4 })
 };
 
-if(!db.routes.size || !db.trips.size || !db.stops.size || !db.shapes.size) load();
+//if(!db.routes.size || !db.trips.size || !db.stops.size || !db.shapes.size) 
+load();
 cron.schedule('0 3 * * *', load);
 
-if(!db.vehicles.size || !db.filter.size) loadVehicles();
+//if(!db.vehicles.size || !db.filter.size) loadVehicles();
 cron.schedule('0 4 */3 * *', loadVehicles);
 
 app.get("/trip",  async(req, res) => {
