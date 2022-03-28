@@ -34,7 +34,7 @@ function convertShapes(data, [shape_id, shape_pt_lat, shape_pt_lon]) {
         shapes[shape[shape_id]].push([lat, lng]);
     });
 
-    return db.shapes.setMany(shapes, true);
+    return db.shapes.setMany(shapes, false);
 };
 
 function convertRoutes(data) {
