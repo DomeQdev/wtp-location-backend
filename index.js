@@ -1,6 +1,7 @@
 const Database = require("fast-json-collection");
 const load = require("./util/load");
 const loadVehicles = require("./util/vehicles");
+const predict = require("./predict");
 const cron = require("node-cron");
 const app = require('fastify')();
 
@@ -40,36 +41,9 @@ app.get("/trip", async (req, res) => {
     };
 });
 
-app.get("/predict", async () => {
-    let naTrasie = db.trips.filter(trip => (trip.line.includes("R") || (trip.line.includes("S") && trip.trip.includes("DP"))) && (trip.stops[0].arrival < Date.now() && trip.stops[trip.stops.length - 1].departure > Date.now()));
-    return removeDup(naTrasie.map(x => {
-        let shape = db.shapes.get(x.shape);
-        let time = (x.stops[x.stops.length - 1].departure - x.stops[0].arrival) / 1000;
-        let timePerShape = time / shape.length;
-
-        let when = shape.map((s, i) => {
-            return {
-                location: s,
-                time: Math.floor(x.stops[0].arrival + (i * timePerShape * 1000))
-            }
-        });
-
-        let nearest = when.reduce((a, b) => Math.abs(a.time - Date.now()) < Math.abs(b.time - Date.now()) ? a : b);
-        return {
-            line: x.line,
-            trip: x.trip,
-            headsign: x.headsign,
-            location: nearest.location,
-        };
-    }), "location");
-});
+app.get("/predict", predict);
 
 app.listen(3000, (err, address) => {
     if (err) throw err;
     console.log(`server listening on ${address}`);
 });
-
-function removeDup(arr, key) {
-    let seen = {};
-    return arr.filter((item) => seen.hasOwnProperty(item[key]) ? false : (seen[item[key]] = true));
-}

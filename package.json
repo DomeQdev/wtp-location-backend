@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@turf/turf": "^6.5.0",
     "fast-json-collection": "^1.0.0",
     "fastify": "^3.27.4",
     "jsdom": "^19.0.0",
