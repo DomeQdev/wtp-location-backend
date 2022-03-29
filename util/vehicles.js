@@ -3,11 +3,7 @@ const { JSDOM } = require('jsdom');
 
 module.exports = async () => {
     db.vehicles.clear();
-    let filter = {
-        model: {},
-        carrier: {},
-        depot: {}
-    };
+    let models = {};
 
     let ile = await fetch("https://www.ztm.waw.pl/baza-danych-pojazdow/").then(document => Number(document.querySelectorAll("li.page-numbers")[3].textContent.split(" ")[0]));
 
@@ -34,12 +30,17 @@ module.exports = async () => {
                 features: features,
                 description: realbus.description
             });
+
+            if(!models[`${vehicle[0]} ${realbus.model || vehicle[1]}`]) models = [vehicle[5]];
+            else models[`${vehicle[0]} ${realbus.model || vehicle[1]}`].push(vehicle[5]);
+
             return true;
         }));
     }
 
     console.log(`Vehicles: ${db.vehicles.size} | Bus: ${db.vehicles.filter(x => x.type === "bus").length} | Tram: ${db.vehicles.filter(x => x.type === "tram").length}`);
     db.vehicles.sync();
+    db.models.setMany(models);
 }
 
 async function fetch(url, limit = 10) {
