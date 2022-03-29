@@ -1,6 +1,7 @@
 const Database = require("fast-json-collection");
 const load = require("./util/load");
 const loadVehicles = require("./util/vehicles");
+const predict = require("./predict");
 const cron = require("node-cron");
 const app = require('fastify')();
 
@@ -13,17 +14,17 @@ global.db = {
     filter: new Database({ path: "./db/filter.json", sync: false, space: 4 })
 };
 
-if(!db.routes.size || !db.trips.size || !db.stops.size || !db.shapes.size) load();
+if (!db.routes.size || !db.trips.size || !db.stops.size || !db.shapes.size) load();
 cron.schedule('0 3 * * *', load);
 
-if(!db.vehicles.size || !db.filter.size) loadVehicles();
+//if (!db.vehicles.size || !db.filter.size) loadVehicles();
 cron.schedule('0 4 */3 * *', loadVehicles);
 
-app.get("/trip",  async(req, res) => {
+app.get("/trip", async (req, res) => {
     let trip = db.trips.get(req.query.trip);
     if (!trip) return res.code(404).send("Trip not found");
     let shape = db.shapes.get(trip.shape);
-    res.send({
+    return {
         line: trip.line,
         headsign: trip.headsign,
         shapes: shape,
@@ -37,8 +38,10 @@ app.get("/trip",  async(req, res) => {
                 time: stop.departure
             }
         })
-    });
+    };
 });
+
+app.get("/predict", predict);
 
 app.listen(3000, (err, address) => {
     if (err) throw err;
