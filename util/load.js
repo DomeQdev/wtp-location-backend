@@ -2,6 +2,7 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 const loadGTFS = require('../loadGTFS');
 
 module.exports = async () => {
+    let now = Date.now();
     db.routes.clear();
     db.trips.clear();
     db.stops.clear();
@@ -32,5 +33,5 @@ module.exports = async () => {
             stopTimes: [0, 1, 2, 3, 5, -1],
             trips: [0, 2, 3, 5]
         })*/
-    ]);
+    ]).then(() => console.log(`It took ${Date.now() - now}ms to load all GTFS files.`));
 }
