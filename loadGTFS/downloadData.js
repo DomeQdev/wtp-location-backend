@@ -2,7 +2,6 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 const { unzip } = require('unzipit');
 
 module.exports = async (link) => {
-    // link should be .zip file.
     let data = await fetch(link).then(res => res.arrayBuffer());
 
     let { entries } = await unzip(data).catch(() => ({ entries: null }));

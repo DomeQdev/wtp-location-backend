@@ -46,7 +46,7 @@ app.get("/trip", async (req, res) => {
     };
 });
 
-app.get("/vehicle", async(req, res) => {
+app.get("/vehicle", async (req, res) => {
     let vehicle = db.vehicles.get(req.query.vehicle);
     if (!vehicle) return res.code(404).send("Vehicle not found");
     return vehicle;
@@ -54,7 +54,7 @@ app.get("/vehicle", async(req, res) => {
 
 app.get("/predict", predict);
 
-app.get("/filter", async() => {
+app.get("/filter", async () => {
     return {
         models: db.models.values,
         routes: db.routes.values
@@ -62,6 +62,6 @@ app.get("/filter", async() => {
 })
 
 app.listen(3000, "0.0.0.0", (err, address) => {
-    if(err) throw new Error(err);
+    if (err) throw new Error(err);
     console.log(`Server listening on ${address}`);
 });

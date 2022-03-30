@@ -3,7 +3,7 @@ module.exports = async () => {
     return removeDup(naTrasie.map(x => {
         let shape = db.shapes.get(x.shape);
         let stops = x.stops;
-        
+
         let nextStop = stops.filter(stop => stop.arrival > Date.now()).shift();
         let beforeStop = stops.filter(stop => stop.departure <= Date.now()).pop();
 
@@ -17,17 +17,19 @@ module.exports = async () => {
             }
         });
 
-        if(!when.length) {
+        if (!when.length) {
             console.log(`Rozjebany kurs: ${x.line} > ${x.headsign} (${x.trip})`);
             return null;
         }
 
         let nearest = when.reduce((a, b) => Math.abs(a.time - Date.now()) < Math.abs(b.time - Date.now()) ? a : b);
+        let previousLocation = when.filter(w => w.time < nearest.time).pop();
         return {
             line: x.line,
             trip: x.trip,
             headsign: x.headsign,
-            location: nearest.location
+            location: nearest.location,
+            previousLocation: previousLocation ? previousLocation.location : null,
         };
     }).filter(x => x), "location");
 };

@@ -31,7 +31,7 @@ module.exports = async () => {
                 description: realbus.description
             });
 
-            if(!models[`${vehicle[0]} ${realbus.model || vehicle[1]}`]) models[`${vehicle[0]} ${realbus.model || vehicle[1]}`] = [vehicle[5]];
+            if (!models[`${vehicle[0]} ${realbus.model || vehicle[1]}`]) models[`${vehicle[0]} ${realbus.model || vehicle[1]}`] = [vehicle[5]];
             else models[`${vehicle[0]} ${realbus.model || vehicle[1]}`].push(vehicle[5]);
 
             return true;
