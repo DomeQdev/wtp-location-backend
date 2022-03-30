@@ -12,12 +12,20 @@ module.exports = async () => {
         loadGTFS("https://mkuran.pl/gtfs/kolejemazowieckie.zip", {
             shapes: [0, 2, 3],
             stopTimes: [0, 1, 2, 3, -1, -1],
-            trips: [0, 2, 4, 5]
+            trips: [0, 2, 4, 5],
+            short: "km"
         }),
         loadGTFS(`https://mkuran.pl/gtfs/warsaw/feeds/${Object.keys(data)[0]}.zip`, {
             shapes: [0, 3, 4],
             stopTimes: [0, 1, 2, 3, 5, -1],
-            trips: [0, 2, 3, 5]
+            trips: [0, 2, 3, 5],
+            short: "ztm"
+        }),
+        loadGTFS("https://mkuran.pl/gtfs/wkd.zip", {
+            shapes: [0, 2, 3],
+            stopTimes: [0, 3, 4, 2, -1, -1],
+            trips: [0, 2, 3, 6],
+            short: "wkd"
         })
         /*loadGTFS("https://mkuran.pl/gtfs/tristar.zip", {
             shapes: [0, 2, 3],

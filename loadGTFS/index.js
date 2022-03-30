@@ -4,34 +4,38 @@ module.exports = async (link, options) => {
     let data = await downloadData(link);
     if (!data) return null;
 
-    convertShapes(data["shapes.txt"].split("\r\n"), options.shapes);
-    convertRoutes(data["routes.txt"].split("\r\n"));
-    convertStops(data["stops.txt"].split("\r\n"));
+    convertShapes(data["shapes.txt"].split("\r\n"), options.shapes, options.short);
+    convertRoutes(data["routes.txt"].split(options.short === "wkd" ? "\n" : "\r\n"));
+    convertStops(data["stops.txt"].split(options.short === "wkd" ? "\n" : "\r\n"));
 
     let stopTimes = convertStopTimes(data["stop_times.txt"].split("\r\n"), options.stopTimes);
-    let trips = convertTrips(data["trips.txt"].split("\r\n"), options.trips);
+    let trips = convertTrips(data["trips.txt"].split("\r\n"), options.trips, options.short);
 
     trips.map(trip => {
         db.trips.set(trip.trip, {
             ...trip,
             stops: stopTimes[trip.trip]
         });
-    })
+    });
 
+    console.log(`${options.short} loaded!`)
     db.trips.sync();
 };
 
 // ztm: 0, 3, 4
 // km: 0, 2, 3
-function convertShapes(data, [shape_id, shape_pt_lat, shape_pt_lon]) {
+// wkd: 0, 2, 3
+function convertShapes(data, [shape_id, shape_pt_lat, shape_pt_lon], short) {
     let shapes = {};
 
     data.filter((x, i) => i !== 0 && i !== data.length - 1).map(line => {
         let shape = line.split(',');
-        if (!shapes[shape[shape_id]]) shapes[shape[shape_id]] = [];
+        let id = !isNaN(shape[shape_id]) ? short + shape[shape_id] : shape[shape_id];
+
+        if (!shapes[id]) shapes[id] = [];
         let lat = Number(shape[shape_pt_lat]);
         let lng = Number(shape[shape_pt_lon]);
-        shapes[shape[shape_id]].push([lat, lng]);
+        shapes[id].push([lat, lng]);
     });
 
     return db.shapes.setMany(shapes, false);
@@ -68,6 +72,7 @@ function convertStops(data) {
 // ztm: 0, 1, 2, 3, 5, -1
 // km: 0, 1, 2, 3, -1, -1
 // pkp: 0, 3, 4, 2, -1, 5
+// wkd: 0, 3, 4, 2, -1, -1
 function convertStopTimes(data, [trip_id, arrival_time, departure_time, stop_id, pickup_type, platform]) {
     let stopTimes = {};
 
@@ -89,14 +94,15 @@ function convertStopTimes(data, [trip_id, arrival_time, departure_time, stop_id,
 // ztm: 0, 2, 3, 5
 // km: 0, 2, 4, 5
 // pkp: 0, 2, 3, 5
-function convertTrips(data, [route_id, trip_id, trip_headsign, shape_id]) {
+// wkd: 0, 2, 3, 6
+function convertTrips(data, [route_id, trip_id, trip_headsign, shape_id], short) {
     return data.filter((x, i) => i !== 0 && i !== data.length - 1).filter(line => line.split(',')[shape_id]).map(line => {
         let trip = line.split(',');
         return {
             line: trip[route_id],
             trip: trip[trip_id],
             headsign: trip[trip_headsign],
-            shape: trip[shape_id],
+            shape: !isNaN(trip[shape_id]) ? short + trip[shape_id] : trip[shape_id],
             stops: []
         };
     });

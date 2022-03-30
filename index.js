@@ -61,7 +61,7 @@ app.get("/filter", async() => {
     }
 })
 
-app.listen(3000, (err, address) => {
-    if (err) throw err;
-    console.log(`server listening on ${address}`);
+app.listen(3000, "0.0.0.0", (err, address) => {
+    if(err) throw new Error(err);
+    console.log(`Server listening on ${address}`);
 });

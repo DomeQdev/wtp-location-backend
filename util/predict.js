@@ -1,7 +1,7 @@
 const { point, nearestPointOnLine, lineString } = require("@turf/turf");
 
 module.exports = async () => {
-    let naTrasie = db.trips.filter(trip => (trip.line.includes("R") || trip.line.includes("S")) && (trip.stops[0].arrival < Date.now() && trip.stops[trip.stops.length - 1].departure > Date.now()));
+    let naTrasie = db.trips.filter(trip => (trip.line.includes("R") || trip.line.includes("S") || trip.line.includes("A")) && (trip.stops[0].arrival < Date.now() && trip.stops[trip.stops.length - 1].departure > Date.now()));
     return removeDup(naTrasie.map(x => {
         let shape = lineString(db.shapes.get(x.shape));
         let stops = x.stops.map(stop => {
@@ -16,7 +16,7 @@ module.exports = async () => {
         let nextStop = stops.filter(stop => stop.arrival > Date.now()).shift();
         let beforeStop = stops.filter(stop => stop.departure <= Date.now()).pop();
 
-        let shapes = shape.geometry.coordinates.slice(beforeStop.index, nextStop.index);
+        let shapes = shape.geometry.coordinates.slice(beforeStop ? beforeStop.index : 0, nextStop ? nextStop.index : 0);
         let timeForShape = (nextStop.arrival - beforeStop.departure) / shapes.length;
 
         let when = shapes.map((s, i) => {
@@ -36,7 +36,7 @@ module.exports = async () => {
             line: x.line,
             trip: x.trip,
             headsign: x.headsign,
-            location: nearest.location,
+            location: nearest.location
         };
     }).filter(x => x), "location");
 };
