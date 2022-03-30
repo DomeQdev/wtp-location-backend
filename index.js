@@ -28,8 +28,10 @@ app.get("/trip", async (req, res) => {
     let line = lineString(shape);
 
     return {
+        trip: {
         line: trip.line,
         headsign: trip.headsign,
+        color: db.routes.get(trip.line) ? db.routes.get(trip.line).color : "#009955",
         shapes: shape,
         stops: trip.stops.map(stop => {
             let stopData = db.stops.get(stop.id);
@@ -43,6 +45,7 @@ app.get("/trip", async (req, res) => {
                 onLine: nearest.properties.location
             }
         })
+        }
     };
 });
 
