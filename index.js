@@ -41,8 +41,10 @@ app.get("/trip", async (req, res) => {
                 id: stop.id,
                 on_request: stop.on_request,
                 location: nearest.properties.dist < 50 ? nearest.geometry.coordinates : stopData.location,
-                time: stop.departure,
-                onLine: nearest.properties.location
+                arrival: stop.arrival,
+                departure: stop.departure,
+                onLine: nearest.properties.location,
+                index: nearest.properties.index
             }
         })
         }
