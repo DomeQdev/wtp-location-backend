@@ -15,7 +15,7 @@ module.exports = async (link, options) => {
     trips.map(trip => {
         if (trip.line.includes("R") || trip.line.includes("S") || trip.line.includes("A")) {
             try {
-                let shape = lineChunk(lineString(db.shapes.get(trip.shape)), 400, { units: 'meters' }).features.map(x => x.geometry.coordinates[0]);
+                let shape = lineChunk(lineString(db.shapes.get(trip.shape)), 400, { units: 'meters' }).features.map(x => x.geometry.coordinates[1]);
                 let ln = lineString(shape);
 
                 db.trips.set(trip.trip, {
