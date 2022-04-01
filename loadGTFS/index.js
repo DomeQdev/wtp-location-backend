@@ -15,13 +15,14 @@ module.exports = async (link, options) => {
     trips.map(trip => {
         if (trip.line.includes("R") || trip.line.includes("S") || trip.line.includes("A")) {
             try {
-                let shape = lineString(lineChunk(lineString(db.shapes.get(trip.shape)), 400, { units: 'meters' }).features.map(x => x.geometry.coordinates[0]));
+                let shape = lineChunk(lineString(db.shapes.get(trip.shape)), 400, { units: 'meters' }).features.map(x => x.geometry.coordinates[0]);
+                let ln = lineString(shape);
 
                 db.trips.set(trip.trip, {
                     ...trip,
                     stops: stopTimes[trip.trip].map(stop => {
                         let stopData = db.stops.get(stop.id);
-                        let nearest = nearestPointOnLine(shape, point(stopData.location), { units: 'meters' });
+                        let nearest = nearestPointOnLine(ln, point(stopData.location), { units: 'meters' });
                         return {
                             ...stop,
                             location: nearest.properties.dist < 50 ? nearest.geometry.coordinates : stopData.location,
@@ -30,6 +31,8 @@ module.exports = async (link, options) => {
                         }
                     })
                 });
+
+                db.shapes.set(trip.shape, shape);
             } catch(e) {
                 console.log(`${trip.line} > ${trip.headsign} (${trip.trip}, ${trip.shape}) ${e.message}`);
             }
@@ -43,6 +46,7 @@ module.exports = async (link, options) => {
 
     console.log(`${options.short} loaded!`)
     db.trips.sync();
+    db.shapes.sync();
 };
 
 // ztm: 0, 3, 4
