@@ -31,7 +31,7 @@ module.exports = async (link, options) => {
                     })
                 });
             } catch(e) {
-                console.log(`${trip.line} ${e.message}`);
+                console.log(`${trip.line} > ${trip.headsign} (${trip.trip}, ${trip.shape}) ${e.message}`);
             }
         } else {
             db.trips.set(trip.trip, {
