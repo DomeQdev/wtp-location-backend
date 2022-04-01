@@ -1,5 +1,5 @@
 const downloadData = require('./downloadData');
-const { point, nearestPointOnLine, lineString } = require("@turf/turf");
+const { point, nearestPointOnLine, lineString, lineChunk } = require("@turf/turf");
 
 module.exports = async (link, options) => {
     let data = await downloadData(link);
@@ -14,21 +14,25 @@ module.exports = async (link, options) => {
 
     trips.map(trip => {
         if (trip.line.includes("R") || trip.line.includes("S") || trip.line.includes("A")) {
-            let shape = lineString(db.shapes.get(trip.shape));
+            try {
+                let shape = lineString(lineChunk(lineString(db.shapes.get(trip.shape)), 400, { units: 'meters' }).features.map(x => x.geometry.coordinates[0]));
 
-            db.trips.set(trip.trip, {
-                ...trip,
-                stops: stopTimes[trip.trip].map(stop => {
-                    let stopData = db.stops.get(stop.id);
-                    let nearest = nearestPointOnLine(shape, point(stopData.location), { units: 'meters' });
-                    return {
-                        ...stop,
-                        location: nearest.properties.dist < 50 ? nearest.geometry.coordinates : stopData.location,
-                        index: nearest.properties.index,
-                        dist: nearest.properties.dist
-                    }
-                })
-            });
+                db.trips.set(trip.trip, {
+                    ...trip,
+                    stops: stopTimes[trip.trip].map(stop => {
+                        let stopData = db.stops.get(stop.id);
+                        let nearest = nearestPointOnLine(shape, point(stopData.location), { units: 'meters' });
+                        return {
+                            ...stop,
+                            location: nearest.properties.dist < 50 ? nearest.geometry.coordinates : stopData.location,
+                            index: nearest.properties.index,
+                            dist: nearest.properties.dist
+                        }
+                    })
+                });
+            } catch(e) {
+                console.log(`${trip.line} ${e.message}`);
+            }
         } else {
             db.trips.set(trip.trip, {
                 ...trip,
