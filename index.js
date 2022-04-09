@@ -28,7 +28,6 @@ app.get("/trip", async (req, res) => {
     let line = lineString(shape);
 
     return {
-        trip: {
         line: trip.line,
         headsign: trip.headsign,
         color: db.routes.get(trip.line) ? db.routes.get(trip.line).color : "#009955",
@@ -47,7 +46,6 @@ app.get("/trip", async (req, res) => {
                 index: nearest.properties.index
             }
         })
-        }
     };
 });
 
