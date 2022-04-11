@@ -1,5 +1,5 @@
 module.exports = async () => {
-    let naTrasie = db.trips.filter(trip => (trip.line.includes("R") || trip.line.includes("S") || trip.line.includes("A")) && (trip.stops[0].arrival < Date.now() && trip.stops[trip.stops.length - 1].departure > Date.now()));
+    let naTrasie = db.trips.filter(trip => (trip.line.includes("R") || trip.line.includes("S") || trip.line.includes("A") || trip.line.includes("M")) && (trip.stops[0].arrival < Date.now() && trip.stops[trip.stops.length - 1].departure > Date.now()));
     return removeDup(naTrasie.map(x => {
         let shape = db.shapes.get(x.shape);
         let stops = x.stops;

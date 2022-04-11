@@ -13,7 +13,7 @@ module.exports = async (link, options) => {
     let trips = convertTrips(data["trips.txt"].split("\r\n"), options.trips, options.short);
 
     trips.map(trip => {
-        if (trip.line.includes("R") || trip.line.includes("S") || trip.line.includes("A")) {
+        if (trip.line.includes("R") || trip.line.includes("S") || trip.line.includes("A") || trip.line.includes("M")) {
             try {
                 let shape = lineString(db.shapes.get(trip.shape));
 

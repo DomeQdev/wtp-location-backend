@@ -10,6 +10,12 @@ module.exports = async () => {
 
     let data = await fetch("https://mkuran.pl/gtfs/warsaw/feeds/modtimes.json").then(res => res.json());
     Promise.all([
+        loadGTFS("https://files.catbox.moe/4opcpm.zip", {
+          shapes: [0, 2, 3],
+          stopTimes: [0, 3, 4, 2, -1, -1],
+          trips: [0, 1, 2, 3],
+          short: "m3"
+        }),
         loadGTFS("https://mkuran.pl/gtfs/kolejemazowieckie.zip", {
             shapes: [0, 2, 3],
             stopTimes: [0, 1, 2, 3, -1, -1],
@@ -27,7 +33,7 @@ module.exports = async () => {
             stopTimes: [0, 3, 4, 2, -1, -1],
             trips: [0, 2, 3, 6],
             short: "wkd"
-        })
+        }),
         /*loadGTFS("https://mkuran.pl/gtfs/tristar.zip", {
             shapes: [0, 2, 3],
             stopTimes: [0, 1, 2, 3, 5, -1],
