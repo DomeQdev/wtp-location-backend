@@ -10,7 +10,7 @@ module.exports = async () => {
 
     let data = await fetch("https://mkuran.pl/gtfs/warsaw/feeds/modtimes.json").then(res => res.json());
     Promise.all([
-        loadGTFS("https://files.catbox.moe/4opcpm.zip", {
+        loadGTFS("https://f004.backblazeb2.com/file/domeqdev/m3.zip", {
           shapes: [0, 2, 3],
           stopTimes: [0, 3, 4, 2, -1, -1],
           trips: [0, 1, 2, 3],
