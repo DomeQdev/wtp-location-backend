@@ -1,7 +1,6 @@
 const Database = require("fast-json-collection");
 const load = require("./util/load");
 const loadVehicles = require("./util/vehicles");
-const { point, nearestPointOnLine, lineString } = require("@turf/turf");
 const predict = require("./util/predict");
 const cron = require("node-cron");
 const app = require('fastify')();
@@ -25,7 +24,6 @@ app.get("/trip", async (req, res) => {
     let trip = db.trips.get(req.query.trip);
     if (!trip) return res.code(404).send("Trip not found");
     let shape = db.shapes.get(trip.shape);
-    let line = lineString(shape);
 
     return {
         line: trip.line,
@@ -34,16 +32,13 @@ app.get("/trip", async (req, res) => {
         shapes: shape,
         stops: trip.stops.map(stop => {
             let stopData = db.stops.get(stop.id);
-            let nearest = nearestPointOnLine(line, point(stopData.location), { units: 'meters' });
             return {
                 name: stopData.name,
                 id: stop.id,
                 on_request: stop.on_request,
-                location: nearest.properties.dist < 50 ? nearest.geometry.coordinates : stopData.location,
+                location: stopData.location,
                 arrival: stop.arrival,
-                departure: stop.departure,
-                onLine: nearest.properties.location,
-                index: nearest.properties.index
+                departure: stop.departure
             }
         })
     };
