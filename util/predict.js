@@ -29,7 +29,7 @@ module.exports = async () => {
             trip: x.trip,
             headsign: x.headsign,
             location: nearest.location,
-            previousLocation: previousLocation ? previousLocation.location : null,
+            deg: previousLocation ? calcBearing(previousLocation.location, nearest.location) : 0
         };
     }).filter(x => x), "location");
 };
@@ -37,4 +37,9 @@ module.exports = async () => {
 function removeDup(arr, key) {
     let seen = {};
     return arr.filter((item) => seen.hasOwnProperty(item[key]) ? false : (seen[item[key]] = true));
+}
+
+function calcBearing(oldLocation, newLocation) {
+    let deg = Math.atan2(newLocation[1] - oldLocation[1], newLocation[0] - oldLocation[0]) * 180 / Math.PI;
+    return deg < 0 ? deg + 360 : deg;
 }

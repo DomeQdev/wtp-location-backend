@@ -33,11 +33,6 @@ module.exports = async () => {
             stopTimes: [0, 3, 4, 2, -1, -1],
             trips: [0, 2, 3, 6],
             short: "wkd"
-        }),
-        /*loadGTFS("https://mkuran.pl/gtfs/tristar.zip", {
-            shapes: [0, 2, 3],
-            stopTimes: [0, 1, 2, 3, 5, -1],
-            trips: [0, 2, 3, 5]
-        })*/
+        })
     ]).then(() => console.log(`It took ${Date.now() - now}ms to load all GTFS files.`));
 }
