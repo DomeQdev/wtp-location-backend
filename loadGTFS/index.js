@@ -93,7 +93,7 @@ function convertStops(data) {
 
 
 // ztm: 0, 1, 2, 3, 5, -1
-// km: 0, 1, 2, 3, -1, -1
+// km: 0, 3, 4, 2, -1, -1
 // pkp: 0, 3, 4, 2, -1, 5
 // wkd: 0, 3, 4, 2, -1, -1
 function convertStopTimes(data, [trip_id, arrival_time, departure_time, stop_id, pickup_type, platform]) {
@@ -115,7 +115,7 @@ function convertStopTimes(data, [trip_id, arrival_time, departure_time, stop_id,
 }
 
 // ztm: 0, 2, 3, 5
-// km: 0, 2, 4, 5
+// km: 0, 2, 4, 6
 // pkp: 0, 2, 3, 5
 // wkd: 0, 2, 3, 6
 function convertTrips(data, [route_id, trip_id, trip_headsign, shape_id], short) {
