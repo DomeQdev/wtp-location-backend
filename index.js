@@ -15,10 +15,10 @@ global.db = {
 };
 
 if (!db.routes.size || !db.trips.size || !db.stops.size || !db.shapes.size) load();
-cron.schedule('0 3 * * *', load);
+cron.schedule('30 2 * * *', load);
 
 if (!db.vehicles.size || !db.models.size) loadVehicles();
-cron.schedule('0 4 */3 * *', loadVehicles);
+cron.schedule('0 3 */3 * *', loadVehicles);
 
 app.get("/trip", async (req, res) => {
     let trip = db.trips.get(req.query.trip);
